@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@supabase/functions-js": "^2.1.5",
-    "@supabase/gotrue-js": "https://github.com/muhghal/gotrue-js.git#master",
+    "@supabase/gotrue-js": "github:muhghal/gotrue-js#master",
     "@supabase/node-fetch": "^2.6.14",
     "@supabase/postgrest-js": "^1.8.4",
     "@supabase/realtime-js": "^2.7.4",
