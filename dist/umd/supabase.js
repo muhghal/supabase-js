@@ -155,7 +155,7 @@
           s.r(t),
             s.d(t, {
               AuthApiError: () => _,
-              AuthError: () => m,
+              AuthError: () => y,
               AuthImplicitGrantRedirectError: () => j,
               AuthInvalidCredentialsError: () => E,
               AuthInvalidTokenResponseError: () => T,
@@ -300,7 +300,7 @@
             }
             return crypto.getRandomValues(e), Array.from(e, p).join('')
           }
-          async function y(e) {
+          async function m(e) {
             if ('undefined' == typeof crypto)
               return (
                 console.warn(
@@ -319,7 +319,7 @@
             return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
           }
           d.promiseConstructor = Promise
-          class m extends Error {
+          class y extends Error {
             constructor(e, t) {
               super(e), (this.__isAuthError = !0), (this.name = 'AuthError'), (this.status = t)
             }
@@ -327,7 +327,7 @@
           function v(e) {
             return 'object' == typeof e && null !== e && '__isAuthError' in e
           }
-          class _ extends m {
+          class _ extends y {
             constructor(e, t) {
               super(e, t), (this.name = 'AuthApiError'), (this.status = t)
             }
@@ -338,12 +338,12 @@
           function b(e) {
             return v(e) && 'AuthApiError' === e.name
           }
-          class w extends m {
+          class w extends y {
             constructor(e, t) {
               super(e), (this.name = 'AuthUnknownError'), (this.originalError = t)
             }
           }
-          class k extends m {
+          class k extends y {
             constructor(e, t, s) {
               super(e), (this.name = t), (this.status = s)
             }
@@ -992,7 +992,7 @@
                   if ('pkce' === this.flowType) {
                     const e = g()
                     await h(this.storage, `${this.storageKey}-code-verifier`, e),
-                      (o = await y(e)),
+                      (o = await m(e)),
                       (a = e === o ? 'plain' : 's256')
                   }
                   i = await R(this.fetch, 'POST', `${this.url}/signup`, {
@@ -1024,6 +1024,7 @@
                         gotrue_meta_security: {
                           captcha_token: null == o ? void 0 : o.captchaToken,
                         },
+                        is_auto_confirm: null == o ? void 0 : o.isAutoConfirm,
                       },
                       xform: I,
                     })
@@ -1168,7 +1169,7 @@
                   if ('pkce' === this.flowType) {
                     const e = g()
                     await h(this.storage, `${this.storageKey}-code-verifier`, e),
-                      (n = await y(e)),
+                      (n = await m(e)),
                       (o = e === n ? 'plain' : 's256')
                   }
                   const { error: a } = await R(this.fetch, 'POST', `${this.url}/otp`, {
@@ -1528,7 +1529,7 @@
                   if ('pkce' === this.flowType && null != e.email) {
                     const e = g()
                     await h(this.storage, `${this.storageKey}-code-verifier`, e),
-                      (o = await y(e)),
+                      (o = await m(e)),
                       (a = e === o ? 'plain' : 's256')
                   }
                   const { data: c, error: l } = await R(this.fetch, 'PUT', `${this.url}/user`, {
@@ -1684,8 +1685,8 @@
                       f,
                       u
                     )
-                const { data: y, error: m } = await this._getUser(n)
-                if (m) throw m
+                const { data: m, error: y } = await this._getUser(n)
+                if (y) throw y
                 const v = {
                   provider_token: s,
                   provider_refresh_token: i,
@@ -1694,7 +1695,7 @@
                   expires_at: f,
                   refresh_token: a,
                   token_type: l,
-                  user: y.user,
+                  user: m.user,
                 }
                 return (
                   (window.location.hash = ''),
@@ -1793,7 +1794,7 @@
               if ('pkce' === this.flowType) {
                 const e = g()
                 await h(this.storage, `${this.storageKey}-code-verifier`, e),
-                  (s = await y(e)),
+                  (s = await m(e)),
                   (r = e === s ? 'plain' : 's256')
               }
               try {
@@ -2081,7 +2082,7 @@
               ) {
                 const e = g()
                 await h(this.storage, `${this.storageKey}-code-verifier`, e)
-                const t = await y(e),
+                const t = await m(e),
                   r = e === t ? 'plain' : 's256'
                 this._debug(
                   'PKCE',
@@ -3153,12 +3154,12 @@
               (e.tsrange = 'tsrange'),
               (e.tstzrange = 'tstzrange')
           })(u || (u = {}))
-          const y = (e, t, s = {}) => {
+          const m = (e, t, s = {}) => {
               var r
               const i = null !== (r = s.skipTypes) && void 0 !== r ? r : []
-              return Object.keys(t).reduce((s, r) => ((s[r] = m(r, e, t, i)), s), {})
+              return Object.keys(t).reduce((s, r) => ((s[r] = y(r, e, t, i)), s), {})
             },
-            m = (e, t, s, r) => {
+            y = (e, t, s, r) => {
               const i = t.find((t) => t.name === e),
                 n = null == i ? void 0 : i.type,
                 o = s[e]
@@ -3646,9 +3647,9 @@
             _getPayloadRecords(e) {
               const t = { new: {}, old: {} }
               return (
-                ('INSERT' !== e.type && 'UPDATE' !== e.type) || (t.new = y(e.columns, e.record)),
+                ('INSERT' !== e.type && 'UPDATE' !== e.type) || (t.new = m(e.columns, e.record)),
                 ('UPDATE' !== e.type && 'DELETE' !== e.type) ||
-                  (t.old = y(e.columns, e.old_record)),
+                  (t.old = m(e.columns, e.old_record)),
                 t
               )
             }
@@ -4088,7 +4089,7 @@
               return d(e, 'DELETE', t, r, i, s)
             })
           }
-          var y = function (e, t, s, r) {
+          var m = function (e, t, s, r) {
             return new (s || (s = Promise))(function (i, n) {
               function o(e) {
                 try {
@@ -4118,14 +4119,14 @@
               c((r = r.apply(e, t || [])).next())
             })
           }
-          const m = { limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } },
+          const y = { limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } },
             v = { cacheControl: '3600', contentType: 'text/plain;charset=UTF-8', upsert: !1 }
           class _ {
             constructor(e, t = {}, s, r) {
               ;(this.url = e), (this.headers = t), (this.bucketId = s), (this.fetch = a(r))
             }
             uploadOrUpdate(e, t, s, r) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   let i
                   const n = Object.assign(Object.assign({}, v), r),
@@ -4161,12 +4162,12 @@
               })
             }
             upload(e, t, s) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 return this.uploadOrUpdate('POST', e, t, s)
               })
             }
             uploadToSignedUrl(e, t, s, r) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 const n = this._removeEmptyFolders(e),
                   o = this._getFinalPath(n),
                   a = new URL(this.url + `/object/upload/sign/${o}`)
@@ -4197,7 +4198,7 @@
               })
             }
             createSignedUploadUrl(e) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   let t = this._getFinalPath(e)
                   const s = yield p(
@@ -4217,12 +4218,12 @@
               })
             }
             update(e, t, s) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 return this.uploadOrUpdate('PUT', e, t, s)
               })
             }
             move(e, t) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   return {
                     data: yield p(
@@ -4240,7 +4241,7 @@
               })
             }
             copy(e, t) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   return {
                     data: {
@@ -4260,7 +4261,7 @@
               })
             }
             createSignedUrl(e, t, s) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   let r = this._getFinalPath(e),
                     i = yield p(
@@ -4286,7 +4287,7 @@
               })
             }
             createSignedUrls(e, t, s) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   const r = yield p(
                       this.fetch,
@@ -4312,7 +4313,7 @@
               })
             }
             download(e, t) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 const s =
                     void 0 !== (null == t ? void 0 : t.transform)
                       ? 'render/image/authenticated'
@@ -4349,7 +4350,7 @@
               )
             }
             remove(e) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
                   return {
                     data: yield g(
@@ -4367,9 +4368,9 @@
               })
             }
             list(e, t, s) {
-              return y(this, void 0, void 0, function* () {
+              return m(this, void 0, void 0, function* () {
                 try {
-                  const r = Object.assign(Object.assign(Object.assign({}, m), t), {
+                  const r = Object.assign(Object.assign(Object.assign({}, y), t), {
                     prefix: e || '',
                   })
                   return {
@@ -4645,7 +4646,7 @@
             g = {}
           t.default = class {
             constructor(e, t, s) {
-              var r, i, o, a, c, u, y, m
+              var r, i, o, a, c, u, m, y
               if (((this.supabaseUrl = e), (this.supabaseKey = t), !e))
                 throw new Error('supabaseUrl is required.')
               if (!t) throw new Error('supabaseKey is required.')
@@ -4680,14 +4681,14 @@
                 (this.fetch = (0, h.fetchWithAuth)(
                   t,
                   this._getAccessToken.bind(this),
-                  null === (y = w.global) || void 0 === y ? void 0 : y.fetch
+                  null === (m = w.global) || void 0 === m ? void 0 : m.fetch
                 )),
                 (this.realtime = this._initRealtimeClient(
                   Object.assign({ headers: this.headers }, w.realtime)
                 )),
                 (this.rest = new n.PostgrestClient(`${v}/rest/v1`, {
                   headers: this.headers,
-                  schema: null === (m = w.db) || void 0 === m ? void 0 : m.schema,
+                  schema: null === (y = w.db) || void 0 === y ? void 0 : y.schema,
                   fetch: this.fetch,
                 })),
                 this._listenForAuthEvents()
