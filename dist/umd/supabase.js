@@ -169,7 +169,7 @@
               NavigatorLockAcquireTimeoutError: () => H,
               isAuthApiError: () => b,
               isAuthError: () => v,
-              isAuthRetryableFetchError: () => x,
+              isAuthRetryableFetchError: () => $,
               lockInternals: () => z,
               navigatorLock: () => K,
             })
@@ -401,22 +401,22 @@
               super(e, 'AuthRetryableFetchError', t)
             }
           }
-          function x(e) {
+          function $(e) {
             return v(e) && 'AuthRetryableFetchError' === e.name
           }
-          const $ = (e) =>
+          const x = (e) =>
               e.msg || e.message || e.error_description || e.error || JSON.stringify(e),
             C = [502, 503, 504]
           async function A(e) {
-            if (!c(e)) throw new P($(e), 0)
-            if (C.includes(e.status)) throw new P($(e), e.status)
+            if (!c(e)) throw new P(x(e), 0)
+            if (C.includes(e.status)) throw new P(x(e), e.status)
             let t
             try {
               t = await e.json()
             } catch (e) {
-              throw new w($(e), e)
+              throw new w(x(e), e)
             }
-            throw new _($(t), e.status || 500)
+            throw new _(x(t), e.status || 500)
           }
           async function R(e, t, s, r) {
             var i
@@ -441,7 +441,7 @@
                 try {
                   a = await e(s, o)
                 } catch (e) {
-                  throw (console.error(e), new P($(e), 0))
+                  throw (console.error(e), new P(x(e), 0))
                 }
                 if ((a.ok || (await A(a)), null == r ? void 0 : r.noResolveJson)) return a
                 try {
@@ -1536,6 +1536,7 @@
                     headers: this.headers,
                     redirectTo: null == t ? void 0 : t.emailRedirectTo,
                     body: Object.assign(Object.assign({}, e), {
+                      is_auto_confirm: e.isAutoConfirm,
                       code_challenge: o,
                       code_challenge_method: a,
                     }),
@@ -1831,7 +1832,7 @@
                     xform: I,
                   })
                 )),
-                (r = (e, t, s) => s && s.error && x(s.error) && Date.now() + 200 * (e + 1) - i < W),
+                (r = (e, t, s) => s && s.error && $(s.error) && Date.now() + 200 * (e + 1) - i < W),
                 new Promise((e, t) => {
                   ;(async () => {
                     for (let i = 0; i < 1 / 0; i++)
@@ -1893,7 +1894,7 @@
                     const { error: e } = await this._callRefreshToken(s.refresh_token)
                     e &&
                       (console.error(e),
-                      x(e) ||
+                      $(e) ||
                         (this._debug(
                           t,
                           'refresh failed with a non-retryable error, removing the session',
@@ -2816,12 +2817,12 @@
               REALTIME_POSTGRES_CHANGES_LISTEN_EVENT: () => E,
               REALTIME_PRESENCE_LISTEN_EVENTS: () => l,
               REALTIME_SUBSCRIBE_STATES: () => O,
-              RealtimeChannel: () => x,
-              RealtimeClient: () => A,
+              RealtimeChannel: () => P,
+              RealtimeClient: () => x,
               RealtimePresence: () => g,
             })
           var r = s(840)
-          const i = { 'X-Client-Info': 'realtime-js/2.7.4' }
+          const i = { 'X-Client-Info': 'realtime-js/2.8.0' }
           var n, o, a, c, h, l, u
           !(function (e) {
             ;(e[(e.connecting = 0)] = 'connecting'),
@@ -3247,39 +3248,7 @@
               return e
             },
             T = (e) => ('string' == typeof e ? e.replace(' ', 'T') : e)
-          var E,
-            j,
-            O,
-            P = function (e, t, s, r) {
-              return new (s || (s = Promise))(function (i, n) {
-                function o(e) {
-                  try {
-                    c(r.next(e))
-                  } catch (e) {
-                    n(e)
-                  }
-                }
-                function a(e) {
-                  try {
-                    c(r.throw(e))
-                  } catch (e) {
-                    n(e)
-                  }
-                }
-                function c(e) {
-                  var t
-                  e.done
-                    ? i(e.value)
-                    : ((t = e.value),
-                      t instanceof s
-                        ? t
-                        : new s(function (e) {
-                            e(t)
-                          })).then(o, a)
-                }
-                c((r = r.apply(e, t || [])).next())
-              })
-            }
+          var E, j, O
           !(function (e) {
             ;(e.ALL = '*'), (e.INSERT = 'INSERT'), (e.UPDATE = 'UPDATE'), (e.DELETE = 'DELETE')
           })(E || (E = {})),
@@ -3294,7 +3263,7 @@
                 (e.CLOSED = 'CLOSED'),
                 (e.CHANNEL_ERROR = 'CHANNEL_ERROR')
             })(O || (O = {}))
-          class x {
+          class P {
             constructor(e, t = { config: {} }, s) {
               ;(this.topic = e),
                 (this.params = t),
@@ -3303,6 +3272,7 @@
                 (this.state = o.closed),
                 (this.joinedOnce = !1),
                 (this.pushBuffer = []),
+                (this.subTopic = e.replace(/^realtime:/i, '')),
                 (this.params.config = Object.assign(
                   { broadcast: { ack: !1, self: !1 }, presence: { key: '' } },
                   t.config
@@ -3341,11 +3311,12 @@
                 this._on(a.reply, {}, (e, t) => {
                   this._trigger(this._replyEventName(t), e)
                 }),
-                (this.presence = new g(this))
+                (this.presence = new g(this)),
+                (this.broadcastEndpointURL = this._broadcastEndpointURL())
             }
             subscribe(e, t = this.timeout) {
               var s, r
-              if (this.joinedOnce)
+              if ((this.socket.isConnected() || this.socket.connect(), this.joinedOnce))
                 throw "tried to subscribe multiple times. 'subscribe' can only be called a single time per channel instance"
               {
                 const {
@@ -3427,41 +3398,65 @@
             presenceState() {
               return this.presence.state
             }
-            track(e, t = {}) {
-              return P(this, void 0, void 0, function* () {
-                return yield this.send(
-                  { type: 'presence', event: 'track', payload: e },
-                  t.timeout || this.timeout
-                )
-              })
+            async track(e, t = {}) {
+              return await this.send(
+                { type: 'presence', event: 'track', payload: e },
+                t.timeout || this.timeout
+              )
             }
-            untrack(e = {}) {
-              return P(this, void 0, void 0, function* () {
-                return yield this.send({ type: 'presence', event: 'untrack' }, e)
-              })
+            async untrack(e = {}) {
+              return await this.send({ type: 'presence', event: 'untrack' }, e)
             }
             on(e, t, s) {
               return this._on(e, t, s)
             }
-            send(e, t = {}) {
-              return new Promise((s) => {
-                var r, i, n
-                const o = this._push(e.type, e, t.timeout || this.timeout)
-                o.rateLimited && s('rate limited'),
-                  'broadcast' !== e.type ||
-                    (null ===
-                      (n =
-                        null ===
-                          (i = null === (r = this.params) || void 0 === r ? void 0 : r.config) ||
-                        void 0 === i
-                          ? void 0
-                          : i.broadcast) || void 0 === n
-                      ? void 0
-                      : n.ack) ||
-                    s('ok'),
-                  o.receive('ok', () => s('ok')),
-                  o.receive('timeout', () => s('timed out'))
-              })
+            async send(e, t = {}) {
+              var s, r
+              if (this._canPush() || 'broadcast' !== e.type)
+                return new Promise((s) => {
+                  var r, i, n
+                  const o = this._push(e.type, e, t.timeout || this.timeout)
+                  o.rateLimited && s('rate limited'),
+                    'broadcast' !== e.type ||
+                      (null ===
+                        (n =
+                          null ===
+                            (i = null === (r = this.params) || void 0 === r ? void 0 : r.config) ||
+                          void 0 === i
+                            ? void 0
+                            : i.broadcast) || void 0 === n
+                        ? void 0
+                        : n.ack) ||
+                      s('ok'),
+                    o.receive('ok', () => s('ok')),
+                    o.receive('timeout', () => s('timed out'))
+                })
+              {
+                const { event: i, payload: n } = e,
+                  o = {
+                    method: 'POST',
+                    headers: {
+                      apikey: null !== (s = this.socket.accessToken) && void 0 !== s ? s : '',
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      messages: [{ topic: this.subTopic, event: i, payload: n }],
+                    }),
+                  }
+                try {
+                  return (
+                    await this._fetchWithTimeout(
+                      this.broadcastEndpointURL,
+                      o,
+                      null !== (r = t.timeout) && void 0 !== r ? r : this.timeout
+                    )
+                  ).ok
+                    ? 'ok'
+                    : 'error'
+                } catch (e) {
+                  return 'AbortError' === e.name ? 'timed out' : 'error'
+                }
+              }
             }
             updateJoinPayload(e) {
               this.joinPush.updatePayload(e)
@@ -3491,6 +3486,23 @@
                     this._canPush() || r.trigger('ok', {})
                 })
               )
+            }
+            _broadcastEndpointURL() {
+              let e = this.socket.endPoint
+              return (
+                (e = e.replace(/^ws/i, 'http')),
+                (e = e.replace(/(\/socket\/websocket|\/socket|\/websocket)\/?$/i, '')),
+                e.replace(/\/+$/, '') + '/api/broadcast'
+              )
+            }
+            async _fetchWithTimeout(e, t, s) {
+              const r = new AbortController(),
+                i = setTimeout(() => r.abort(), s),
+                n = await this.socket.fetch(
+                  e,
+                  Object.assign(Object.assign({}, t), { signal: r.signal })
+                )
+              return clearTimeout(i), n
             }
             _push(e, t, s = this.timeout) {
               if (!this.joinedOnce)
@@ -3615,7 +3627,7 @@
                   var r
                   return !(
                     (null === (r = e.type) || void 0 === r ? void 0 : r.toLocaleLowerCase()) ===
-                      s && x.isEqual(e.filter, t)
+                      s && P.isEqual(e.filter, t)
                   )
                 })),
                 this
@@ -3654,40 +3666,10 @@
               )
             }
           }
-          var $ = function (e, t, s, r) {
-            return new (s || (s = Promise))(function (i, n) {
-              function o(e) {
-                try {
-                  c(r.next(e))
-                } catch (e) {
-                  n(e)
-                }
-              }
-              function a(e) {
-                try {
-                  c(r.throw(e))
-                } catch (e) {
-                  n(e)
-                }
-              }
-              function c(e) {
-                var t
-                e.done
-                  ? i(e.value)
-                  : ((t = e.value),
-                    t instanceof s
-                      ? t
-                      : new s(function (e) {
-                          e(t)
-                        })).then(o, a)
-              }
-              c((r = r.apply(e, t || [])).next())
-            })
-          }
-          const C = () => {}
-          class A {
+          const $ = () => {}
+          class x {
             constructor(e, t) {
-              var s, n
+              var n, o
               ;(this.accessToken = null),
                 (this.channels = []),
                 (this.endPoint = ''),
@@ -3699,13 +3681,27 @@
                 (this.heartbeatTimer = void 0),
                 (this.pendingHeartbeatRef = null),
                 (this.ref = 0),
-                (this.logger = C),
+                (this.logger = $),
                 (this.conn = null),
                 (this.sendBuffer = []),
                 (this.serializer = new f()),
                 (this.stateChangeCallbacks = { open: [], close: [], error: [], message: [] }),
                 (this.eventsPerSecondLimitMs = 100),
                 (this.inThrottle = !1),
+                (this._resolveFetch = (e) => {
+                  let t
+                  return (
+                    (t =
+                      e ||
+                      ('undefined' == typeof fetch
+                        ? (...e) =>
+                            Promise.resolve()
+                              .then(s.t.bind(s, 743, 23))
+                              .then(({ default: t }) => t(...e))
+                        : fetch)),
+                    (...e) => t(...e)
+                  )
+                }),
                 (this.endPoint = `${e}/${c.websocket}`),
                 (null == t ? void 0 : t.params) && (this.params = t.params),
                 (null == t ? void 0 : t.headers) &&
@@ -3715,14 +3711,14 @@
                 (null == t ? void 0 : t.transport) && (this.transport = t.transport),
                 (null == t ? void 0 : t.heartbeatIntervalMs) &&
                   (this.heartbeatIntervalMs = t.heartbeatIntervalMs)
-              const o =
-                null === (s = null == t ? void 0 : t.params) || void 0 === s
-                  ? void 0
-                  : s.eventsPerSecond
-              o && (this.eventsPerSecondLimitMs = Math.floor(1e3 / o))
               const a =
-                null === (n = null == t ? void 0 : t.params) || void 0 === n ? void 0 : n.apikey
-              a && (this.accessToken = a),
+                null === (n = null == t ? void 0 : t.params) || void 0 === n
+                  ? void 0
+                  : n.eventsPerSecond
+              a && (this.eventsPerSecondLimitMs = Math.floor(1e3 / a))
+              const h =
+                null === (o = null == t ? void 0 : t.params) || void 0 === o ? void 0 : o.apikey
+              h && (this.accessToken = h),
                 (this.reconnectAfterMs = (null == t ? void 0 : t.reconnectAfterMs)
                   ? t.reconnectAfterMs
                   : (e) => [1e3, 2e3, 5e3, 1e4][e - 1] || 1e4),
@@ -3732,13 +3728,10 @@
                 (this.decode = (null == t ? void 0 : t.decode)
                   ? t.decode
                   : this.serializer.decode.bind(this.serializer)),
-                (this.reconnectTimer = new d(
-                  () =>
-                    $(this, void 0, void 0, function* () {
-                      this.disconnect(), this.connect()
-                    }),
-                  this.reconnectAfterMs
-                ))
+                (this.reconnectTimer = new d(async () => {
+                  this.disconnect(), this.connect()
+                }, this.reconnectAfterMs)),
+                (this.fetch = this._resolveFetch(null == t ? void 0 : t.fetch))
             }
             connect() {
               this.conn ||
@@ -3761,17 +3754,13 @@
             getChannels() {
               return this.channels
             }
-            removeChannel(e) {
-              return $(this, void 0, void 0, function* () {
-                const t = yield e.unsubscribe()
-                return 0 === this.channels.length && this.disconnect(), t
-              })
+            async removeChannel(e) {
+              const t = await e.unsubscribe()
+              return 0 === this.channels.length && this.disconnect(), t
             }
-            removeAllChannels() {
-              return $(this, void 0, void 0, function* () {
-                const e = yield Promise.all(this.channels.map((e) => e.unsubscribe()))
-                return this.disconnect(), e
-              })
+            async removeAllChannels() {
+              const e = await Promise.all(this.channels.map((e) => e.unsubscribe()))
+              return this.disconnect(), e
             }
             log(e, t, s) {
               this.logger(e, t, s)
@@ -3792,8 +3781,7 @@
               return this.connectionState() === h.Open
             }
             channel(e, t = { config: {} }) {
-              this.isConnected() || this.connect()
-              const s = new x(`realtime:${e}`, t, this)
+              const s = new P(`realtime:${e}`, t, this)
               return this.channels.push(s), s
             }
             push(e) {
